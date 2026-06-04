@@ -1,0 +1,12 @@
+{
+  "domain": "whole_house_fan_controller",
+  "name": "Whole House Fan Controller",
+  "codeowners": ["@REPLACE_WITH_GITHUB_USERNAME"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/REPLACE_WITH_GITHUB_USERNAME/ha-whole-house-fan-controller",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/REPLACE_WITH_GITHUB_USERNAME/ha-whole-house-fan-controller/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
