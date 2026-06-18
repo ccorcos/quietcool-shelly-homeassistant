@@ -1,4 +1,4 @@
-"""Constants for the Whole House Fan Controller integration."""
+"""Constants for the QuietCool Shelly Whole House Fan Controller integration."""
 
 from __future__ import annotations
 

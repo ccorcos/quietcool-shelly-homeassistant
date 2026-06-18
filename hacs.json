@@ -1,5 +1,5 @@
 {
-  "name": "Whole House Fan Controller",
+  "name": "QuietCool Shelly Whole House Fan Controller",
   "content_in_root": false,
   "render_readme": true,
   "domains": ["fan", "number", "button", "sensor"],

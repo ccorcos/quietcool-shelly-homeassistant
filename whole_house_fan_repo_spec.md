@@ -36,7 +36,7 @@ whole_house_fan_controller
 HACS display name:
 
 ```text
-Whole House Fan Controller
+QuietCool Shelly Whole House Fan Controller
 ```
 
 ---

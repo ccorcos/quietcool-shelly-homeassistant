@@ -1,9 +1,9 @@
 {
-  "title": "Whole House Fan Controller",
+  "title": "QuietCool Shelly Whole House Fan Controller",
   "config": {
     "step": {
       "user": {
-        "title": "Whole House Fan Controller",
+        "title": "QuietCool Shelly Whole House Fan Controller",
         "description": "Select the three switch entities and define the speed relay truth table.",
         "data": {
           "name": "Name",
@@ -39,7 +39,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Whole House Fan Controller options",
+        "title": "QuietCool Shelly Whole House Fan Controller options",
         "description": "Edit switch entities, speed relay truth table, and timer defaults.",
         "data": {
           "name": "Name",

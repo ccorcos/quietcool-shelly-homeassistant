@@ -1,4 +1,4 @@
-# Whole House Fan Controller for Home Assistant
+# QuietCool Shelly Whole House Fan Controller for Home Assistant
 
 A small Home Assistant custom integration for controlling a multi-speed whole-house fan using three existing switch entities.
 
@@ -40,7 +40,7 @@ This repository is intended to be installed as a HACS custom repository.
 
 6. Category: **Integration**.
 7. Click **Add**.
-8. Search HACS for **Whole House Fan Controller**.
+8. Search HACS for **QuietCool Shelly Whole House Fan Controller**.
 9. Install it.
 10. Restart Home Assistant.
 
@@ -48,7 +48,7 @@ This repository is intended to be installed as a HACS custom repository.
 
 1. Go to **Settings → Devices & services**.
 2. Click **Add integration**.
-3. Search for **Whole House Fan Controller**.
+3. Search for **QuietCool Shelly Whole House Fan Controller**.
 4. Select your three switch entities:
    - Master power switch.
    - Speed relay A.

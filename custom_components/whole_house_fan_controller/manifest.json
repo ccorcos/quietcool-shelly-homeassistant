@@ -1,6 +1,6 @@
 {
   "domain": "whole_house_fan_controller",
-  "name": "Whole House Fan Controller",
+  "name": "QuietCool Shelly Whole House Fan Controller",
   "codeowners": ["@ccorcos"],
   "config_flow": true,
   "dependencies": [],

@@ -1,4 +1,4 @@
-"""Whole House Fan Controller integration."""
+"""QuietCool Shelly Whole House Fan Controller integration."""
 
 from __future__ import annotations
 
@@ -55,7 +55,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up a Whole House Fan Controller config entry."""
+    """Set up a QuietCool Shelly Whole House Fan Controller config entry."""
     controller = WholeHouseFanController(hass, entry)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = controller
 

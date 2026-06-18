@@ -66,18 +66,22 @@ hacs.json           HACS metadata
 
 ## Validation and testing
 
-This repo currently does not define a local test harness or dependency lock file. Before finishing changes:
+Before finishing changes:
 
-1. Run a syntax check for the integration:
+1. Run the test suite when `pytest` is available:
 
    ```bash
-   python -m compileall custom_components/whole_house_fan_controller
+   pytest
    ```
 
-2. If Home Assistant dev dependencies are available in the environment, run any applicable Home Assistant validation/tests.
-3. Manually inspect config-flow changes for selector/schema validity and matching translations in `strings.json`.
+2. Run a syntax check for the integration:
 
-If you add a test framework or project config, document the new commands here.
+   ```bash
+   python3 -m compileall custom_components/whole_house_fan_controller
+   ```
+
+3. If Home Assistant dev dependencies are available in the environment, run any applicable Home Assistant validation/tests.
+4. Manually inspect config-flow changes for selector/schema validity and matching translations in `strings.json`.
 
 ## Documentation expectations
 

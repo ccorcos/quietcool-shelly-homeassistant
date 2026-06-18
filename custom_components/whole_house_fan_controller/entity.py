@@ -1,4 +1,4 @@
-"""Shared entity helpers for Whole House Fan Controller."""
+"""Shared entity helpers for QuietCool Shelly Whole House Fan Controller."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from .const import DOMAIN
 
 
 class WholeHouseFanBaseEntity(Entity):
-    """Base entity for all Whole House Fan Controller entities."""
+    """Base entity for all QuietCool Shelly Whole House Fan Controller entities."""
 
     _attr_has_entity_name = True
 
@@ -24,7 +24,7 @@ class WholeHouseFanBaseEntity(Entity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name=controller.name,
-            manufacturer="Whole House Fan Controller",
+            manufacturer="QuietCool Shelly Whole House Fan Controller",
             model="Relay-backed virtual fan",
         )
 
