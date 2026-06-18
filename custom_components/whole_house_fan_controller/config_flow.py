@@ -22,21 +22,17 @@ from .const import (
     CONF_MEDIUM_RELAY_A,
     CONF_MEDIUM_RELAY_B,
     CONF_MIN_RUN_HOURS,
-    CONF_POWER_OFF_DELAY,
     CONF_POWER_SWITCH,
     CONF_RUN_HOURS_STEP,
     CONF_SPEED_MAP,
     CONF_SPEED_RELAY_A,
     CONF_SPEED_RELAY_B,
-    CONF_SPEED_SETTLE_DELAY,
     DEFAULT_MAX_RUN_HOURS,
     DEFAULT_MIN_RUN_HOURS,
     DEFAULT_NAME,
-    DEFAULT_POWER_OFF_DELAY,
     DEFAULT_RUN_HOURS,
     DEFAULT_RUN_HOURS_STEP,
     DEFAULT_SPEED_MAP,
-    DEFAULT_SPEED_SETTLE_DELAY,
     DOMAIN,
     PRESET_HIGH,
     PRESET_LOW,
@@ -70,12 +66,6 @@ def _schema(defaults: dict[str, Any]) -> vol.Schema:
             vol.Required(CONF_MEDIUM_RELAY_B, default=speed_map[PRESET_MEDIUM]["relay_b"]): bool,
             vol.Required(CONF_HIGH_RELAY_A, default=speed_map[PRESET_HIGH]["relay_a"]): bool,
             vol.Required(CONF_HIGH_RELAY_B, default=speed_map[PRESET_HIGH]["relay_b"]): bool,
-            vol.Required(CONF_POWER_OFF_DELAY, default=defaults.get(CONF_POWER_OFF_DELAY, DEFAULT_POWER_OFF_DELAY)): selector.NumberSelector(
-                selector.NumberSelectorConfig(min=0, max=10, step=0.1, mode=selector.NumberSelectorMode.BOX)
-            ),
-            vol.Required(CONF_SPEED_SETTLE_DELAY, default=defaults.get(CONF_SPEED_SETTLE_DELAY, DEFAULT_SPEED_SETTLE_DELAY)): selector.NumberSelector(
-                selector.NumberSelectorConfig(min=0, max=10, step=0.1, mode=selector.NumberSelectorMode.BOX)
-            ),
             vol.Required(CONF_DEFAULT_RUN_HOURS, default=defaults.get(CONF_DEFAULT_RUN_HOURS, DEFAULT_RUN_HOURS)): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=0.1, max=24, step=0.1, mode=selector.NumberSelectorMode.BOX)
             ),
@@ -112,8 +102,6 @@ def _normalize_user_input(user_input: dict[str, Any]) -> dict[str, Any]:
                 "relay_b": user_input[CONF_HIGH_RELAY_B],
             },
         },
-        CONF_POWER_OFF_DELAY: float(user_input[CONF_POWER_OFF_DELAY]),
-        CONF_SPEED_SETTLE_DELAY: float(user_input[CONF_SPEED_SETTLE_DELAY]),
         CONF_DEFAULT_RUN_HOURS: float(user_input[CONF_DEFAULT_RUN_HOURS]),
         CONF_MIN_RUN_HOURS: float(user_input[CONF_MIN_RUN_HOURS]),
         CONF_MAX_RUN_HOURS: float(user_input[CONF_MAX_RUN_HOURS]),
@@ -142,9 +130,6 @@ async def _validate(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, str]
 
     if not _speed_map_has_all_presets(data[CONF_SPEED_MAP]):
         errors["base"] = "invalid_speed_map"
-
-    if data[CONF_POWER_OFF_DELAY] < 0 or data[CONF_SPEED_SETTLE_DELAY] < 0:
-        errors["base"] = "invalid_delay"
 
     min_hours = data[CONF_MIN_RUN_HOURS]
     max_hours = data[CONF_MAX_RUN_HOURS]

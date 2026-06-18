@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Whole House Fan Controller",
-        "description": "Select the three switch entities, define the speed relay truth table, and configure short safety delays around speed changes.",
+        "description": "Select the three switch entities and define the speed relay truth table.",
         "data": {
           "name": "Name",
           "power_switch_entity": "Master power switch",
@@ -16,8 +16,6 @@
           "medium_relay_b": "Medium: relay B on",
           "high_relay_a": "High: relay A on",
           "high_relay_b": "High: relay B on",
-          "power_off_delay": "Delay after master power off before speed change, seconds",
-          "speed_settle_delay": "Delay after speed relays change before power on, seconds",
           "default_run_hours": "Default timer run hours",
           "min_run_hours": "Minimum timer hours",
           "max_run_hours": "Maximum timer hours",
@@ -30,7 +28,6 @@
       "not_switch": "Select a switch entity.",
       "entity_not_found": "Entity was not found.",
       "invalid_speed_map": "Speed map must contain Low, Medium, and High.",
-      "invalid_delay": "Delay values cannot be negative.",
       "invalid_timer_range": "Timer values must be greater than zero.",
       "min_greater_than_max": "Minimum hours must be less than or equal to maximum hours.",
       "default_out_of_range": "Default hours must be between minimum and maximum hours."
@@ -43,7 +40,7 @@
     "step": {
       "init": {
         "title": "Whole House Fan Controller options",
-        "description": "Edit switch entities, speed relay truth table, safety delays, and timer defaults.",
+        "description": "Edit switch entities, speed relay truth table, and timer defaults.",
         "data": {
           "name": "Name",
           "power_switch_entity": "Master power switch",
@@ -55,8 +52,6 @@
           "medium_relay_b": "Medium: relay B on",
           "high_relay_a": "High: relay A on",
           "high_relay_b": "High: relay B on",
-          "power_off_delay": "Delay after master power off before speed change, seconds",
-          "speed_settle_delay": "Delay after speed relays change before power on, seconds",
           "default_run_hours": "Default timer run hours",
           "min_run_hours": "Minimum timer hours",
           "max_run_hours": "Maximum timer hours",
@@ -69,7 +64,6 @@
       "not_switch": "Select a switch entity.",
       "entity_not_found": "Entity was not found.",
       "invalid_speed_map": "Speed map must contain Low, Medium, and High.",
-      "invalid_delay": "Delay values cannot be negative.",
       "invalid_timer_range": "Timer values must be greater than zero.",
       "min_greater_than_max": "Minimum hours must be less than or equal to maximum hours.",
       "default_out_of_range": "Default hours must be between minimum and maximum hours."

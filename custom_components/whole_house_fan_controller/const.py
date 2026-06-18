@@ -10,8 +10,6 @@ CONF_POWER_SWITCH: Final = "power_switch_entity"
 CONF_SPEED_RELAY_A: Final = "speed_relay_a_entity"
 CONF_SPEED_RELAY_B: Final = "speed_relay_b_entity"
 CONF_SPEED_MAP: Final = "speed_map"
-CONF_POWER_OFF_DELAY: Final = "power_off_delay"
-CONF_SPEED_SETTLE_DELAY: Final = "speed_settle_delay"
 CONF_DEFAULT_RUN_HOURS: Final = "default_run_hours"
 CONF_MIN_RUN_HOURS: Final = "min_run_hours"
 CONF_MAX_RUN_HOURS: Final = "max_run_hours"
@@ -30,8 +28,6 @@ PRESET_HIGH: Final = "High"
 PRESET_MODES: Final = [PRESET_LOW, PRESET_MEDIUM, PRESET_HIGH]
 
 DEFAULT_NAME: Final = "Whole House Fan"
-DEFAULT_POWER_OFF_DELAY: Final = 0.5
-DEFAULT_SPEED_SETTLE_DELAY: Final = 0.5
 DEFAULT_RUN_HOURS: Final = 4.0
 DEFAULT_MIN_RUN_HOURS: Final = 0.5
 DEFAULT_MAX_RUN_HOURS: Final = 12.0

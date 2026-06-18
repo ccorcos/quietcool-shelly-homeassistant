@@ -20,20 +20,16 @@ from .const import (
     CONF_DEFAULT_RUN_HOURS,
     CONF_MAX_RUN_HOURS,
     CONF_MIN_RUN_HOURS,
-    CONF_POWER_OFF_DELAY,
     CONF_POWER_SWITCH,
     CONF_RUN_HOURS_STEP,
     CONF_SPEED_MAP,
     CONF_SPEED_RELAY_A,
     CONF_SPEED_RELAY_B,
-    CONF_SPEED_SETTLE_DELAY,
     DEFAULT_MAX_RUN_HOURS,
     DEFAULT_MIN_RUN_HOURS,
-    DEFAULT_POWER_OFF_DELAY,
     DEFAULT_RUN_HOURS,
     DEFAULT_RUN_HOURS_STEP,
     DEFAULT_SPEED_MAP,
-    DEFAULT_SPEED_SETTLE_DELAY,
     DOMAIN,
     PRESET_LOW,
     PRESET_MODES,
@@ -152,16 +148,6 @@ class WholeHouseFanController:
         return float(self.options.get(CONF_RUN_HOURS_STEP, DEFAULT_RUN_HOURS_STEP))
 
     @property
-    def power_off_delay(self) -> float:
-        """Return delay after master power is removed before speed changes."""
-        return float(self.options.get(CONF_POWER_OFF_DELAY, DEFAULT_POWER_OFF_DELAY))
-
-    @property
-    def speed_settle_delay(self) -> float:
-        """Return delay after speed relays change before master power is restored."""
-        return float(self.options.get(CONF_SPEED_SETTLE_DELAY, DEFAULT_SPEED_SETTLE_DELAY))
-
-    @property
     def is_on(self) -> bool:
         """Return whether the master power switch is currently on."""
         state = self.hass.states.get(self.power_switch_entity)
@@ -209,11 +195,7 @@ class WholeHouseFanController:
             if preset_mode is not None:
                 self._validate_preset(preset_mode)
                 self.current_preset = preset_mode
-            if self.is_on:
-                await self._set_switch(self.power_switch_entity, False)
-                await asyncio.sleep(self.power_off_delay)
             await self._apply_speed_relays(self.current_preset)
-            await asyncio.sleep(self.speed_settle_delay)
             await self._set_switch(self.power_switch_entity, True)
             self.async_update_listeners()
 
@@ -226,18 +208,11 @@ class WholeHouseFanController:
             self.async_update_listeners()
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
-        """Set selected speed, never changing speed relays while power is on."""
+        """Set selected speed."""
         self._validate_preset(preset_mode)
         async with self._lock:
-            fan_was_on = self.is_on
             self.current_preset = preset_mode
-            if fan_was_on:
-                await self._set_switch(self.power_switch_entity, False)
-                await asyncio.sleep(self.power_off_delay)
             await self._apply_speed_relays(preset_mode)
-            await asyncio.sleep(self.speed_settle_delay)
-            if fan_was_on:
-                await self._set_switch(self.power_switch_entity, True)
             self.async_update_listeners()
 
     async def async_set_run_hours(self, value: float) -> None:
@@ -280,7 +255,7 @@ class WholeHouseFanController:
         self.async_update_listeners()
 
     async def _apply_speed_relays(self, preset_mode: str) -> None:
-        """Apply speed relay state with master power already off or about to be off."""
+        """Apply speed relay state."""
         relay_state = self.speed_map[preset_mode]
         await self._set_switch(self.relay_a_entity, bool(relay_state["relay_a"]))
         await self._set_switch(self.relay_b_entity, bool(relay_state["relay_b"]))
