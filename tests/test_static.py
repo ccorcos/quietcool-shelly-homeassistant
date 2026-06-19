@@ -25,9 +25,9 @@ def test_hacs_metadata() -> None:
     """HACS metadata includes the platforms exposed by the integration."""
     hacs = json.loads((ROOT / "hacs.json").read_text())
 
-    assert hacs["name"] == "QuietCool Shelly Whole House Fan Controller"
+    assert hacs["name"] == "QuietCool Shelly House Fan Controller"
     assert hacs["content_in_root"] is False
-    assert set(hacs["domains"]) == {"fan", "number", "button", "sensor"}
+    assert set(hacs["domains"]) == {"fan", "number", "button", "sensor", "switch"}
 
 
 def test_translation_files_are_valid_and_in_sync() -> None:

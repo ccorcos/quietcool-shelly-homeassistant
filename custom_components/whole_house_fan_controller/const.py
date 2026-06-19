@@ -1,4 +1,4 @@
-"""Constants for the QuietCool Shelly Whole House Fan Controller integration."""
+"""Constants for the QuietCool Shelly House Fan Controller integration."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ PRESET_MEDIUM: Final = "Medium"
 PRESET_HIGH: Final = "High"
 PRESET_MODES: Final = [PRESET_LOW, PRESET_MEDIUM, PRESET_HIGH]
 
-DEFAULT_NAME: Final = "Whole House Fan"
+DEFAULT_NAME: Final = "House Fan"
 DEFAULT_RUN_HOURS: Final = 4.0
 DEFAULT_MIN_RUN_HOURS: Final = 0.5
 DEFAULT_MAX_RUN_HOURS: Final = 12.0

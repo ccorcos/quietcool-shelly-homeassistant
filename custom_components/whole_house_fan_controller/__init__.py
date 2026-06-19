@@ -1,4 +1,4 @@
-"""QuietCool Shelly Whole House Fan Controller integration."""
+"""QuietCool Shelly House Fan Controller integration."""
 
 from __future__ import annotations
 
@@ -42,6 +42,7 @@ PLATFORMS: list[Platform] = [
     Platform.NUMBER,
     Platform.BUTTON,
     Platform.SENSOR,
+    Platform.SWITCH,
 ]
 
 
@@ -55,7 +56,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up a QuietCool Shelly Whole House Fan Controller config entry."""
+    """Set up a QuietCool Shelly House Fan Controller config entry."""
     controller = WholeHouseFanController(hass, entry)
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = controller
 
@@ -234,6 +235,11 @@ class WholeHouseFanController:
             self._async_timer_finished,
         )
         self.async_update_listeners()
+
+    async def async_stop_timer(self) -> None:
+        """Cancel the run timer and turn the fan off."""
+        self.cancel_timer(turn_off=False)
+        await self.async_turn_off(cancel_timer=False)
 
     @callback
     def cancel_timer(self, *, turn_off: bool) -> None:

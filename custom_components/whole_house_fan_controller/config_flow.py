@@ -1,4 +1,4 @@
-"""Config flow for QuietCool Shelly Whole House Fan Controller."""
+"""Config flow for QuietCool Shelly House Fan Controller."""
 
 from __future__ import annotations
 

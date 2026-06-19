@@ -1,8 +1,8 @@
 type: vertical-stack
 cards:
   - type: tile
-    entity: fan.whole_house_fan
-    name: Whole House Fan
+    entity: fan.house_fan
+    name: House Fan
     icon: mdi:fan
     features_position: bottom
     vertical: false
@@ -14,13 +14,15 @@ cards:
           - High
 
   - type: entities
-    title: Whole House Fan Timer
+    title: House Fan Timer
     entities:
-      - entity: number.whole_house_fan_run_hours
+      - entity: number.house_fan_run_hours
         name: Hours
-      - entity: button.whole_house_fan_start_timer
+      - entity: switch.house_fan_timed_run
+        name: Timed Run
+      - entity: button.house_fan_start_timer
         name: Start Timer
-      - entity: sensor.whole_house_fan_timer_remaining
+      - entity: sensor.house_fan_timer_remaining
         name: Remaining
-      - entity: sensor.whole_house_fan_timer_finishes_at
+      - entity: sensor.house_fan_timer_finishes_at
         name: Finishes At

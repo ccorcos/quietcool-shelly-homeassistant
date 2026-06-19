@@ -1,4 +1,4 @@
-# Home Assistant Whole House Fan Repo Spec
+# Home Assistant House Fan Repo Spec
 
 This document describes the repository for a Home Assistant whole-house-fan controller using three existing relay/switch entities.
 
@@ -36,7 +36,7 @@ whole_house_fan_controller
 HACS display name:
 
 ```text
-QuietCool Shelly Whole House Fan Controller
+QuietCool Shelly House Fan Controller
 ```
 
 ---
@@ -70,11 +70,12 @@ The target hardware is Shelly 1 Gen 4 relay modules driving a PACKARD PR372 Fan 
 The integration creates:
 
 ```text
-fan.whole_house_fan
-number.whole_house_fan_run_hours
-button.whole_house_fan_start_timer
-sensor.whole_house_fan_timer_remaining
-sensor.whole_house_fan_timer_finishes_at
+fan.house_fan
+number.house_fan_run_hours
+button.house_fan_start_timer
+switch.house_fan_timed_run
+sensor.house_fan_timer_remaining
+sensor.house_fan_timer_finishes_at
 ```
 
 ---
@@ -120,15 +121,17 @@ The generated timer controls how long the fan runs after pressing the Start Time
 
 Default behavior:
 
-1. User selects speed on `fan.whole_house_fan`.
-2. User sets `number.whole_house_fan_run_hours`, for example `4`.
-3. User presses `button.whole_house_fan_start_timer`.
+1. User selects speed on `fan.house_fan`.
+2. User sets `number.house_fan_run_hours`, for example `4`.
+3. User presses `button.house_fan_start_timer`.
 4. Integration applies selected speed.
 5. Integration turns on master power.
 6. Integration schedules turn-off after the configured hours.
 7. At the end of the timer, integration turns off master power.
 
-Timer should be cancelable by manually turning off the fan.
+The timed-run switch should turn on when a timer is active. Turning it on starts a timed run. Turning it off cancels the timer and turns the fan off.
+
+Timer should be cancelable by manually turning off the fan or by turning off the timed-run switch.
 
 If fan is turned on manually through `fan.turn_on`, the timer should not automatically start unless the user presses the timer button.
 
@@ -199,7 +202,7 @@ Options flow should allow editing the same values.
 ## Implementation notes
 
 - Shared runtime controller lives in `custom_components/whole_house_fan_controller/__init__.py`.
-- Entity platforms are `fan`, `number`, `button`, and `sensor`.
+- Entity platforms are `fan`, `number`, `button`, `sensor`, and `switch`.
 - Use Home Assistant async APIs and `blocking=True` for switch service calls.
 - Keep vendor-specific relay logic out of the integration.
 - Keep public option keys stable unless a migration is added.

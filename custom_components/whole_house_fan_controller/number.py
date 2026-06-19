@@ -1,4 +1,4 @@
-"""Number platform for QuietCool Shelly Whole House Fan Controller."""
+"""Number platform for QuietCool Shelly House Fan Controller."""
 
 from __future__ import annotations
 

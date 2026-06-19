@@ -6,7 +6,7 @@
 
 input_select:
   whf_speed:
-    name: Whole House Fan Speed
+    name: House Fan Speed
     options:
       - Low
       - Medium
@@ -16,7 +16,7 @@ input_select:
 
 input_number:
   whf_run_hours:
-    name: Whole House Fan Run Time
+    name: House Fan Run Time
     min: 0.5
     max: 12
     step: 0.5
@@ -26,13 +26,13 @@ input_number:
 
 timer:
   whf_run_timer:
-    name: Whole House Fan Timer
+    name: House Fan Timer
     restore: true
 
 template:
   - fan:
-      - name: Whole House Fan
-        unique_id: whole_house_fan_virtual
+      - name: House Fan
+        unique_id: house_fan_virtual
         state: "{{ is_state('switch.whf_power', 'on') }}"
         preset_mode: "{{ states('input_select.whf_speed') }}"
         preset_modes:
@@ -49,15 +49,25 @@ template:
             preset_mode: "{{ preset_mode }}"
 
   - button:
-      - name: Start Whole House Fan Timer
-        unique_id: start_whole_house_fan_timer
+      - name: Start House Fan Timer
+        unique_id: start_house_fan_timer
         icon: mdi:timer-play-outline
         press:
           action: script.whf_start_timer
 
+  - switch:
+      - name: House Fan Timed Run
+        unique_id: house_fan_timed_run
+        icon: mdi:timer-outline
+        state: "{{ is_state('timer.whf_run_timer', 'active') }}"
+        turn_on:
+          action: script.whf_start_timer
+        turn_off:
+          action: script.whf_stop_timer
+
 script:
   whf_turn_on:
-    alias: Whole House Fan - Turn On
+    alias: House Fan - Turn On
     mode: restart
     sequence:
       - action: script.whf_apply_speed_only
@@ -68,7 +78,7 @@ script:
           entity_id: switch.whf_power
 
   whf_turn_off:
-    alias: Whole House Fan - Turn Off
+    alias: House Fan - Turn Off
     mode: restart
     sequence:
       - action: timer.cancel
@@ -79,7 +89,7 @@ script:
           entity_id: switch.whf_power
 
   whf_set_speed:
-    alias: Whole House Fan - Set Speed
+    alias: House Fan - Set Speed
     mode: restart
     fields:
       preset_mode:
@@ -101,7 +111,7 @@ script:
           preset_mode: "{{ requested_speed }}"
 
   whf_apply_speed_only:
-    alias: Whole House Fan - Apply Speed Relay State Only
+    alias: House Fan - Apply Speed Relay State Only
     mode: restart
     fields:
       preset_mode:
@@ -142,7 +152,7 @@ script:
                   entity_id: switch.whf_speed_b
 
   whf_start_timer:
-    alias: Whole House Fan - Start Timer
+    alias: House Fan - Start Timer
     mode: restart
     sequence:
       - variables:
@@ -156,9 +166,15 @@ script:
           duration: >-
             {{ '%02d:%02d:00' | format(total_minutes // 60, total_minutes % 60) }}
 
+  whf_stop_timer:
+    alias: House Fan - Stop Timer
+    mode: restart
+    sequence:
+      - action: script.whf_turn_off
+
 automation:
   - id: whf_timer_finished_turn_off
-    alias: Whole House Fan - Timer Finished Turn Off
+    alias: House Fan - Timer Finished Turn Off
     mode: single
     trigger:
       - platform: event

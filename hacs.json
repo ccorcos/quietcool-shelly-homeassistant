@@ -1,7 +1,7 @@
 {
-  "name": "QuietCool Shelly Whole House Fan Controller",
+  "name": "QuietCool Shelly House Fan Controller",
   "content_in_root": false,
   "render_readme": true,
-  "domains": ["fan", "number", "button", "sensor"],
+  "domains": ["fan", "number", "button", "sensor", "switch"],
   "homeassistant": "2024.6.0"
 }

@@ -9,9 +9,10 @@ This repo contains a Home Assistant custom integration for a QuietCool whole-hou
 - Integration domain: `whole_house_fan_controller`
 - Custom component path: `custom_components/whole_house_fan_controller/`
 - Primary UI entities:
-  - `fan.whole_house_fan`
-  - `number.whole_house_fan_run_hours`
-  - `button.whole_house_fan_start_timer`
+  - `fan.house_fan`
+  - `number.house_fan_run_hours`
+  - `button.house_fan_start_timer`
+  - `switch.house_fan_timed_run`
   - timer sensors for remaining time and finish time
 - Example/non-primary artifacts:
   - `examples/package/whole_house_fan.yaml`
@@ -46,6 +47,7 @@ custom_components/whole_house_fan_controller/
   number.py         Timer duration number entity
   button.py         Start timer button entity
   sensor.py         Timer sensors
+  switch.py         Timed-run switch entity
   manifest.json     Home Assistant integration metadata
 
 examples/           Dashboard and YAML-package examples

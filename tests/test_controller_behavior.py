@@ -45,6 +45,7 @@ def _install_homeassistant_stubs() -> None:
         NUMBER="number",
         BUTTON="button",
         SENSOR="sensor",
+        SWITCH="switch",
     )
     modules["homeassistant.core"].HomeAssistant = object
     modules["homeassistant.core"].callback = lambda func: func
@@ -135,7 +136,7 @@ class FakeEntry:
     entry_id = "test_entry"
     options: dict[str, Any] = {}
     data = {
-        "name": "Whole House Fan",
+        "name": "House Fan",
         "power_switch_entity": "switch.whf_power",
         "speed_relay_a_entity": "switch.whf_speed_a",
         "speed_relay_b_entity": "switch.whf_speed_b",
@@ -195,3 +196,16 @@ def test_turn_off_only_turns_off_master_power() -> None:
     assert hass.services.calls == [("switch", "turn_off", "switch.whf_power", True)]
     assert hass.states.get("switch.whf_speed_a").state == "on"
     assert hass.states.get("switch.whf_speed_b").state == "on"
+
+
+def test_stop_timer_cancels_timer_and_turns_off_master_power() -> None:
+    controller, hass = _make_controller()
+    hass.states.set("switch.whf_power", "on")
+    controller.finish_time = __import__("datetime").datetime.utcnow() + __import__("datetime").timedelta(hours=1)
+    controller._cancel_timer_callback = lambda: None
+
+    asyncio.run(controller.async_stop_timer())
+
+    assert controller.finish_time is None
+    assert controller._cancel_timer_callback is None
+    assert hass.services.calls == [("switch", "turn_off", "switch.whf_power", True)]

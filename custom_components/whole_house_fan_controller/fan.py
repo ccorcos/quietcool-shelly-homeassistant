@@ -1,4 +1,4 @@
-"""Fan platform for QuietCool Shelly Whole House Fan Controller."""
+"""Fan platform for QuietCool Shelly House Fan Controller."""
 
 from __future__ import annotations
 
