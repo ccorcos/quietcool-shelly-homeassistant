@@ -97,7 +97,9 @@ finishes_at_entity: sensor.house_fan_timer_finishes_at
 name: House Fan
 ```
 
-When the fan is off, the card shows a duration input and **Start**. When a timed run is active, it shows remaining time and **Stop**. If the fan is on without a timer, remaining shows **Until stopped** and **Stop** turns the fan off.
+The `name` field controls the card title. If omitted, the card uses the fan entity's friendly name.
+
+When the fan is off, the card shows a duration input and **Start**. When a timed run is active, it shows remaining time and **Stop**. If the fan is on without a timer, remaining shows **∞** and **Stop** turns the fan off.
 
 See `examples/dashboard/custom-card.yaml`.
 
@@ -119,16 +121,12 @@ type: entities
 entities:
   - entity: fan.house_fan
     name: House Fan
+  - entity: switch.house_fan_timed_run
+    name: Start
   - entity: number.house_fan_run_hours
     name: Hours
-  - entity: switch.house_fan_timed_run
-    name: Timed Run
-  - entity: button.house_fan_start_timer
-    name: Start/Stop
   - entity: sensor.house_fan_timer_remaining
     name: Remaining
-  - entity: sensor.house_fan_timer_finishes_at
-    name: Finishes At
 ```
 
 See `examples/dashboard/tile-card.yaml`.

@@ -19,6 +19,12 @@ PERCENTAGE_TO_PRESET = {
     PRESET_HIGH: 100,
 }
 
+SUPPORTED_FEATURES = FanEntityFeature.PRESET_MODE | FanEntityFeature.SET_SPEED
+if hasattr(FanEntityFeature, "TURN_ON"):
+    SUPPORTED_FEATURES |= FanEntityFeature.TURN_ON
+if hasattr(FanEntityFeature, "TURN_OFF"):
+    SUPPORTED_FEATURES |= FanEntityFeature.TURN_OFF
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -33,7 +39,7 @@ async def async_setup_entry(
 class WholeHouseFanEntity(WholeHouseFanBaseEntity, FanEntity):
     """Virtual whole house fan entity backed by three switch entities."""
 
-    _attr_supported_features = FanEntityFeature.PRESET_MODE | FanEntityFeature.SET_SPEED
+    _attr_supported_features = SUPPORTED_FEATURES
     _attr_preset_modes = PRESET_MODES
     _attr_speed_count = 3
 

@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from . import WholeHouseFanController
 from .const import DOMAIN
@@ -48,10 +49,9 @@ class WholeHouseFanTimerRemainingSensor(WholeHouseFanBaseEntity, SensorEntity):
 
 
 class WholeHouseFanTimerFinishesAtSensor(WholeHouseFanBaseEntity, SensorEntity):
-    """Timer finish timestamp sensor."""
+    """Timer finish time sensor."""
 
     _attr_translation_key = "timer_finishes_at"
-    _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_icon = "mdi:timer-check-outline"
 
     def __init__(self, controller: WholeHouseFanController, entry: ConfigEntry) -> None:
@@ -59,6 +59,16 @@ class WholeHouseFanTimerFinishesAtSensor(WholeHouseFanBaseEntity, SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_timer_finishes_at"
 
     @property
-    def native_value(self) -> datetime | None:
-        """Return timer finish timestamp."""
-        return self.controller.finish_time
+    def native_value(self) -> str | None:
+        """Return timer finish time as a local clock time."""
+        finish_time = self.controller.finish_time
+        if finish_time is None:
+            return None
+
+        return _format_time(dt_util.as_local(finish_time))
+
+
+def _format_time(value: datetime) -> str:
+    """Format a time without a leading zero."""
+    formatted = value.strftime("%I:%M %p")
+    return formatted.removeprefix("0")

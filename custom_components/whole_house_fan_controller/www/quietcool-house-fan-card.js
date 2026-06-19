@@ -20,7 +20,6 @@ class QuietCoolHouseFanCard extends HTMLElement {
     }
 
     this.config = {
-      name: "House Fan",
       duration_entity: "number.house_fan_run_hours",
       timed_run_entity: "switch.house_fan_timed_run",
       remaining_entity: "sensor.house_fan_timer_remaining",
@@ -61,12 +60,13 @@ class QuietCoolHouseFanCard extends HTMLElement {
     const remainingValue = remaining?.state;
     const finishValue = this.formatFinishTime(finishesAt?.state);
 
+    const title = this.config.name || fan.attributes?.friendly_name || "House Fan";
     const status = timerActive ? "Timed" : fanOn ? "On" : "Off";
     const statusClass = timerActive ? "timed" : fanOn ? "on" : "off";
     const primaryValue = timerActive
-      ? this.formatRemaining(remainingValue)
+      ? `${this.formatRemaining(remainingValue)}${finishValue ? `, ends ${finishValue}` : ""}`
       : fanOn
-        ? "Until stopped"
+        ? "∞"
         : this.durationInput(durationValue);
     const primaryLabel = timerActive || fanOn ? "Remaining" : "Duration";
     const actionLabel = fanOn || timerActive ? "Stop" : "Start";
@@ -75,8 +75,7 @@ class QuietCoolHouseFanCard extends HTMLElement {
     this.innerHTML = this.wrap(`
       <div class="header">
         <div>
-          <div class="name">${this.escape(this.config.name)}</div>
-          <div class="subtle">${this.escape(this.config.entity)}</div>
+          <div class="name">${this.escape(title)}</div>
         </div>
         <div class="status ${statusClass}">${status}</div>
       </div>
@@ -93,7 +92,6 @@ class QuietCoolHouseFanCard extends HTMLElement {
         <div>
           <div class="label">${primaryLabel}</div>
           <div class="value">${primaryValue}</div>
-          ${timerActive && finishValue ? `<div class="subtle">Ends ${finishValue}</div>` : ""}
         </div>
         <button class="action ${actionClass}" data-action="${actionClass}">${actionLabel}</button>
       </div>
@@ -282,7 +280,7 @@ class QuietCoolHouseFanCard extends HTMLElement {
   formatFinishTime(value) {
     if (!value || value === "unknown" || value === "unavailable") return "";
     const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "";
+    if (Number.isNaN(date.getTime())) return this.escape(value);
     return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   }
 
