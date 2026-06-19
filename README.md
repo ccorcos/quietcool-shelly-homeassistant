@@ -26,6 +26,8 @@ This integration is written for a Shelly 1 Gen 4 relay setup driving a PACKARD P
 
 ![](./wiring.svg)
 
+![](./example.jpeg)
+
 ## Installation with HACS
 
 This repository is intended to be installed as a HACS custom repository.
