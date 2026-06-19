@@ -60,6 +60,9 @@ This repository is intended to be installed as a HACS custom repository.
 
 ## Compact dashboard card
 
+![](./custom-off.png)
+![](./custom-on.png)
+
 This integration includes a compact Lovelace card with speed selection, duration/remaining display, and Start/Stop control.
 
 The card appears in the Home Assistant card picker as **QuietCool House Fan**. Its YAML card type is `custom:quietcool-house-fan-card`.
@@ -101,9 +104,10 @@ The `name` field controls the card title. If omitted, the card uses the fan enti
 
 When the fan is off, the card shows a duration input and **Start**. When a timed run is active, it shows remaining time and **Stop**. If the fan is on without a timer, remaining shows **∞** and **Stop** turns the fan off.
 
-See `examples/dashboard/custom-card.yaml`.
 
 ## Built-in dashboard card example
+
+![](./plain.png)
 
 Home Assistant will create the fan, timer number, timer button, timed-run switch, and timer sensors after you add the integration. To put them together using only built-in cards:
 
@@ -129,4 +133,3 @@ entities:
     name: Remaining
 ```
 
-See `examples/dashboard/tile-card.yaml`.

@@ -1,4 +1,9 @@
 class QuietCoolHouseFanCard extends HTMLElement {
+  constructor() {
+    super();
+    this._root = this.attachShadow({ mode: "open" });
+  }
+
   static getConfigElement() {
     return document.createElement("quietcool-house-fan-card-editor");
   }
@@ -41,191 +46,116 @@ class QuietCoolHouseFanCard extends HTMLElement {
     if (!this.config || !this._hass) return;
 
     const fan = this._hass.states[this.config.entity];
+    if (!fan) {
+      this._root.innerHTML = this.card(`
+        <div style="color: var(--error-color, #db4437); padding: 16px;">
+          Entity not found: ${this.escape(this.config.entity)}
+        </div>
+      `);
+      return;
+    }
+
     const duration = this._hass.states[this.config.duration_entity];
     const timedRun = this._hass.states[this.config.timed_run_entity];
     const remaining = this._hass.states[this.config.remaining_entity];
     const finishesAt = this._hass.states[this.config.finishes_at_entity];
 
-    if (!fan) {
-      this.innerHTML = this.wrap(`
-        <div class="error">Entity not found: ${this.escape(this.config.entity)}</div>
-      `);
-      return;
-    }
-
     const fanOn = fan.state === "on";
     const timerActive = timedRun?.state === "on";
     const preset = fan.attributes?.preset_mode || "Low";
     const durationValue = duration?.state && duration.state !== "unknown" ? Number(duration.state) : undefined;
-    const remainingValue = remaining?.state;
     const finishValue = this.formatFinishTime(finishesAt?.state);
-
     const title = this.config.name || fan.attributes?.friendly_name || "House Fan";
+
     const status = timerActive ? "Timed" : fanOn ? "On" : "Off";
-    const statusClass = timerActive ? "timed" : fanOn ? "on" : "off";
+    const primaryLabel = timerActive || fanOn ? "Remaining" : "Duration";
     const primaryValue = timerActive
-      ? `${this.formatRemaining(remainingValue)}${finishValue ? `, ends ${finishValue}` : ""}`
+      ? `${this.formatRemaining(remaining?.state)}${finishValue ? `, ends ${finishValue}` : ""}`
       : fanOn
         ? "∞"
         : this.durationInput(durationValue);
-    const primaryLabel = timerActive || fanOn ? "Remaining" : "Duration";
     const actionLabel = fanOn || timerActive ? "Stop" : "Start";
-    const actionClass = fanOn || timerActive ? "stop" : "start";
+    const action = fanOn || timerActive ? "stop" : "start";
 
-    this.innerHTML = this.wrap(`
-      <div class="header">
-        <div>
-          <div class="name">${this.escape(title)}</div>
+    this._root.innerHTML = this.card(`
+      <div style="align-items: center; display: flex; gap: 12px; justify-content: space-between;">
+        <div style="font-size: 1.15rem; font-weight: 600; line-height: 1.2;">
+          ${this.escape(title)}
         </div>
-        <div class="status ${statusClass}">${status}</div>
+        ${this.statusPill(status, timerActive, fanOn)}
       </div>
 
-      <div class="speed-row" role="group" aria-label="Fan speed">
-        ${["High", "Medium", "Low"].map((mode) => `
-          <button class="speed ${preset === mode ? "selected" : ""}" data-preset="${mode}">
-            ${mode[0]}
-          </button>
-        `).join("")}
+      <div style="display: grid; gap: 8px; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 16px 0;">
+        ${["High", "Medium", "Low"].map((mode) => this.speedButton(mode, preset === mode)).join("")}
       </div>
 
-      <div class="timer-row">
+      <div style="align-items: center; display: flex; gap: 12px; justify-content: space-between;">
         <div>
-          <div class="label">${primaryLabel}</div>
-          <div class="value">${primaryValue}</div>
+          <div style="color: var(--secondary-text-color); font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase;">
+            ${primaryLabel}
+          </div>
+          <div style="align-items: baseline; display: flex; gap: 6px; min-height: 36px; padding-top: 2px;">
+            ${primaryValue}
+          </div>
         </div>
-        <button class="action ${actionClass}" data-action="${actionClass}">${actionLabel}</button>
+        ${this.actionButton(actionLabel, action)}
       </div>
     `);
 
     this.bindEvents();
   }
 
-  wrap(content) {
+  card(content) {
+    return `<ha-card><div style="padding: 16px;">${content}</div></ha-card>`;
+  }
+
+  statusPill(status, timerActive, fanOn) {
+    const background = timerActive
+      ? "rgba(var(--rgb-accent-color, 255, 152, 0), 0.18)"
+      : fanOn
+        ? "rgba(var(--rgb-primary-color, 3, 169, 244), 0.16)"
+        : "var(--divider-color)";
+    const color = timerActive
+      ? "var(--accent-color)"
+      : fanOn
+        ? "var(--primary-color)"
+        : "var(--secondary-text-color)";
+
     return `
-      <ha-card>
-        <style>
-          :host {
-            display: block;
-          }
-          .card {
-            padding: 16px;
-          }
-          .header,
-          .timer-row {
-            align-items: center;
-            display: flex;
-            gap: 12px;
-            justify-content: space-between;
-          }
-          .name {
-            font-size: 1.15rem;
-            font-weight: 600;
-            line-height: 1.2;
-          }
-          .subtle {
-            color: var(--secondary-text-color);
-            font-size: 0.8rem;
-            margin-top: 2px;
-          }
-          .status {
-            border-radius: 999px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            padding: 4px 10px;
-          }
-          .status.off {
-            background: var(--divider-color);
-            color: var(--secondary-text-color);
-          }
-          .status.on {
-            background: rgba(var(--rgb-primary-color, 3, 169, 244), 0.16);
-            color: var(--primary-color);
-          }
-          .status.timed {
-            background: rgba(var(--rgb-accent-color, 255, 152, 0), 0.18);
-            color: var(--accent-color);
-          }
-          .speed-row {
-            display: grid;
-            gap: 8px;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            margin: 16px 0;
-          }
-          button {
-            border: 0;
-            border-radius: 12px;
-            cursor: pointer;
-            font: inherit;
-            min-height: 42px;
-          }
-          button:disabled {
-            cursor: not-allowed;
-            opacity: 0.5;
-          }
-          .speed {
-            background: var(--secondary-background-color);
-            color: var(--primary-text-color);
-            font-size: 1.05rem;
-            font-weight: 700;
-          }
-          .speed.selected {
-            background: var(--primary-color);
-            color: var(--text-primary-color, white);
-          }
-          .label {
-            color: var(--secondary-text-color);
-            font-size: 0.75rem;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-          }
-          .value {
-            align-items: baseline;
-            display: flex;
-            gap: 6px;
-            min-height: 36px;
-            padding-top: 2px;
-          }
-          .duration-input {
-            background: var(--secondary-background-color);
-            border: 1px solid var(--divider-color);
-            border-radius: 10px;
-            box-sizing: border-box;
-            color: var(--primary-text-color);
-            font: inherit;
-            max-width: 92px;
-            padding: 7px 9px;
-          }
-          .unit {
-            color: var(--secondary-text-color);
-          }
-          .action {
-            color: white;
-            font-weight: 700;
-            min-width: 86px;
-            padding: 0 18px;
-          }
-          .action.start {
-            background: var(--primary-color);
-          }
-          .action.stop {
-            background: var(--error-color, #db4437);
-          }
-          .error {
-            color: var(--error-color, #db4437);
-            padding: 16px;
-          }
-        </style>
-        <div class="card">${content}</div>
-      </ha-card>
+      <div style="background: ${background}; border-radius: 999px; color: ${color}; font-size: 0.8rem; font-weight: 700; padding: 4px 10px;">
+        ${status}
+      </div>
+    `;
+  }
+
+  speedButton(mode, selected) {
+    return `
+      <button
+        data-preset="${mode}"
+        style="background: ${selected ? "var(--primary-color)" : "var(--secondary-background-color)"}; border: 0; border-radius: 12px; color: ${selected ? "var(--text-primary-color, white)" : "var(--primary-text-color)"}; cursor: pointer; font: inherit; font-size: 1.05rem; font-weight: 700; min-height: 42px;"
+      >
+        ${mode[0]}
+      </button>
+    `;
+  }
+
+  actionButton(label, action) {
+    return `
+      <button
+        data-action="${action}"
+        style="background: ${action === "start" ? "var(--primary-color)" : "var(--error-color, #db4437)"}; border: 0; border-radius: 12px; color: white; cursor: pointer; font: inherit; font-weight: 700; min-height: 42px; min-width: 86px; padding: 0 18px;"
+      >
+        ${label}
+      </button>
     `;
   }
 
   bindEvents() {
-    this.querySelectorAll("button[data-preset]").forEach((button) => {
+    this._root.querySelectorAll("button[data-preset]").forEach((button) => {
       button.addEventListener("click", () => this.setPreset(button.dataset.preset));
     });
 
-    const action = this.querySelector("button[data-action]");
+    const action = this._root.querySelector("button[data-action]");
     action?.addEventListener("click", () => {
       if (action.dataset.action === "start") {
         this.callService("switch", "turn_on", this.config.timed_run_entity);
@@ -234,7 +164,7 @@ class QuietCoolHouseFanCard extends HTMLElement {
       }
     });
 
-    const durationInput = this.querySelector("input[data-duration]");
+    const durationInput = this._root.querySelector("input[data-duration]");
     durationInput?.addEventListener("change", () => {
       const value = Number(durationInput.value);
       if (Number.isFinite(value)) {
@@ -260,8 +190,15 @@ class QuietCoolHouseFanCard extends HTMLElement {
   durationInput(value) {
     const safeValue = Number.isFinite(value) ? value : 4;
     return `
-      <input data-duration class="duration-input" type="number" min="0.1" step="0.5" value="${safeValue}">
-      <span class="unit">h</span>
+      <input
+        data-duration
+        type="number"
+        min="0.1"
+        step="0.5"
+        value="${safeValue}"
+        style="background: var(--secondary-background-color); border: 1px solid var(--divider-color); border-radius: 10px; box-sizing: border-box; color: var(--primary-text-color); font: inherit; max-width: 92px; padding: 7px 9px;"
+      >
+      <span style="color: var(--secondary-text-color);">h</span>
     `;
   }
 

@@ -15,8 +15,8 @@ This repo contains a Home Assistant custom integration for a QuietCool whole-hou
   - `switch.house_fan_timed_run`
   - timer sensors for remaining time and finish time
 - Example/non-primary artifacts:
-  - `examples/package/whole_house_fan.yaml`
   - `examples/dashboard/tile-card.yaml`
+  - `examples/dashboard/custom-card.yaml`
 
 Repository URL: https://github.com/ccorcos/quietcool-shelly-homeassistant
 
@@ -53,7 +53,7 @@ custom_components/whole_house_fan_controller/
 custom_components/whole_house_fan_controller/www/
   quietcool-house-fan-card.js
                     Bundled compact Lovelace card
-examples/           Dashboard and YAML-package examples
+examples/           Dashboard card examples
 README.md           Main user documentation
 hacs.json           HACS metadata
 ```
