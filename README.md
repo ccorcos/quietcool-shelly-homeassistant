@@ -1,6 +1,6 @@
-# QuietCool Shelly House Fan Controller for Home Assistant
+# QuietCool Whole House Fan Controller for Home Assistant using Shelly 1 Gen 4 and Packard PR372 Fan Relay
 
-A small Home Assistant custom integration for controlling a multi-speed whole-house fan using three existing switch entities.
+A Home Assistant custom integration for controlling a multi-speed whole-house fan.
 
 Typical hardware:
 
@@ -11,15 +11,14 @@ Typical hardware:
 - Two relay/switches for speed selection.
 - Hardware relay wiring so only the intended speed lead can be energized.
 
-The integration exposes a clean Home Assistant UI:
+The integration exposes a clean Home Assistant UI through these entities:
 
-- `fan.house_fan` with `Low`, `Medium`, and `High` preset modes.
-- `number.house_fan_run_hours` for timer duration.
-- `button.house_fan_start_timer` to start the fan for the selected number of hours.
-- `switch.house_fan_timed_run` to start or stop a timed run.
-- Optional timer sensors for remaining minutes and finish time.
-
-No custom Lovelace card is required. Use the normal Home Assistant fan tile/card.
+- `fan.house_fan` — main fan control with `Low`, `Medium`, and `High` preset modes.
+- `number.house_fan_run_hours` — timer duration in hours.
+- `switch.house_fan_timed_run` — start/stop toggle for a timed run.
+- `button.house_fan_start_timer` — one-shot button to start a timed run.
+- `sensor.house_fan_timer_remaining` — remaining timer minutes.
+- `sensor.house_fan_timer_finishes_at` — timer finish timestamp.
 
 ## Wiring warning
 
@@ -59,18 +58,52 @@ This repository is intended to be installed as a HACS custom repository.
 5. Configure the relay truth table for Low, Medium, and High.
 6. Save.
 
-## Operation
+## Compact dashboard card
 
-- Turning on the fan applies the selected speed relay state, then turns on master power.
-- Turning off the fan turns off master power and cancels any active timer.
-- Changing speed updates the speed relay state immediately. The fan stays on if it was already running.
-- Changing speed while off updates the speed relays but leaves master power off.
-- Pressing the timer button runs the fan for the configured number of hours.
-- Turning on the timed-run switch starts a timed run; turning it off cancels the timer and turns off the fan.
+This integration includes a compact Lovelace card with speed selection, duration/remaining display, and Start/Stop control.
 
-## Dashboard example
+The card appears in the Home Assistant card picker as **QuietCool House Fan**. Its YAML card type is `custom:quietcool-house-fan-card`.
 
-Home Assistant will create the fan, timer number, timer button, and timer sensors after you add the integration. To put them together on a dashboard:
+First add the card as a dashboard resource:
+
+1. Go to **Settings → Dashboards**.
+2. Open the three-dot menu in the top right.
+3. Choose **Resources**.
+4. Click **Add resource**.
+5. URL:
+
+   ```text
+   /whole_house_fan_controller/quietcool-house-fan-card.js
+   ```
+
+6. Resource type: **JavaScript module**.
+7. Click **Create**.
+8. Refresh your browser.
+
+Then add the card to a dashboard:
+
+1. Open the dashboard you want to edit.
+2. Click **Edit dashboard**.
+3. Click **Add card**.
+4. Search for **QuietCool House Fan**, or choose **Manual** and paste this YAML:
+
+```yaml
+type: custom:quietcool-house-fan-card
+entity: fan.house_fan
+duration_entity: number.house_fan_run_hours
+timed_run_entity: switch.house_fan_timed_run
+remaining_entity: sensor.house_fan_timer_remaining
+finishes_at_entity: sensor.house_fan_timer_finishes_at
+name: House Fan
+```
+
+When the fan is off, the card shows a duration input and **Start**. When a timed run is active, it shows remaining time and **Stop**. If the fan is on without a timer, remaining shows **Until stopped** and **Stop** turns the fan off.
+
+See `examples/dashboard/custom-card.yaml`.
+
+## Built-in dashboard card example
+
+Home Assistant will create the fan, timer number, timer button, timed-run switch, and timer sensors after you add the integration. To put them together using only built-in cards:
 
 1. Open the dashboard you want to edit.
 2. Click **Edit dashboard**.
@@ -82,34 +115,20 @@ Home Assistant will create the fan, timer number, timer button, and timer sensor
 If your entity IDs are different, replace the entity IDs in the YAML with the ones Home Assistant created for your setup.
 
 ```yaml
-type: vertical-stack
-cards:
-  - type: tile
-    entity: fan.house_fan
+type: entities
+entities:
+  - entity: fan.house_fan
     name: House Fan
-    icon: mdi:fan
-    features_position: bottom
-    vertical: false
-    features:
-      - type: fan-preset-modes
-        preset_modes:
-          - Low
-          - Medium
-          - High
-
-  - type: entities
-    title: House Fan Timer
-    entities:
-      - entity: number.house_fan_run_hours
-        name: Hours
-      - entity: switch.house_fan_timed_run
-        name: Timed Run
-      - entity: button.house_fan_start_timer
-        name: Start Timer
-      - entity: sensor.house_fan_timer_remaining
-        name: Remaining
-      - entity: sensor.house_fan_timer_finishes_at
-        name: Finishes At
+  - entity: number.house_fan_run_hours
+    name: Hours
+  - entity: switch.house_fan_timed_run
+    name: Timed Run
+  - entity: button.house_fan_start_timer
+    name: Start/Stop
+  - entity: sensor.house_fan_timer_remaining
+    name: Remaining
+  - entity: sensor.house_fan_timer_finishes_at
+    name: Finishes At
 ```
 
 See `examples/dashboard/tile-card.yaml`.

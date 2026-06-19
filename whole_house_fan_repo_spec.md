@@ -18,7 +18,8 @@ This repo is a HACS custom integration with a YAML package fallback example.
 
 - Main integration: `custom_components/whole_house_fan_controller/`
 - YAML fallback: `examples/package/whole_house_fan.yaml`
-- Dashboard example: `examples/dashboard/tile-card.yaml`
+- Dashboard examples: `examples/dashboard/tile-card.yaml` and `examples/dashboard/custom-card.yaml`
+- Bundled Lovelace card: `custom_components/whole_house_fan_controller/www/quietcool-house-fan-card.js`
 - User documentation: `README.md` and `AGENTS.md`
 
 Repository URL:
@@ -209,9 +210,47 @@ Options flow should allow editing the same values.
 
 ---
 
+## Compact Lovelace card
+
+The integration bundles a compact Lovelace card served from:
+
+```text
+/whole_house_fan_controller/quietcool-house-fan-card.js
+```
+
+Card type:
+
+```text
+custom:quietcool-house-fan-card
+```
+
+Default card config:
+
+```yaml
+type: custom:quietcool-house-fan-card
+entity: fan.house_fan
+duration_entity: number.house_fan_run_hours
+timed_run_entity: switch.house_fan_timed_run
+remaining_entity: sensor.house_fan_timer_remaining
+finishes_at_entity: sensor.house_fan_timer_finishes_at
+name: House Fan
+```
+
+Behavior:
+
+- Speed buttons call `fan.set_preset_mode` with `High`, `Medium`, or `Low`.
+- When the fan is off, show duration and Start.
+- Start turns on `switch.house_fan_timed_run`.
+- When a timed run is active, show remaining time and Stop.
+- When the fan is on without a timer, show `Until stopped` and Stop.
+- Stop calls `fan.turn_off` so both timed and manual fan runs are stopped.
+
+---
+
 ## Documentation requirements
 
 - `README.md` should cover installation, setup, relay truth table, operation, and dashboard example.
 - `AGENTS.md` should describe agent workflow and repo-specific implementation notes.
-- `examples/dashboard/tile-card.yaml` should provide a usable dashboard card example.
+- `examples/dashboard/tile-card.yaml` should provide a built-in-card dashboard example.
+- `examples/dashboard/custom-card.yaml` should provide a compact custom-card dashboard example.
 - `examples/package/whole_house_fan.yaml` should mirror the integration behavior as a YAML fallback.

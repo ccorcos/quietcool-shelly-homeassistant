@@ -6,6 +6,7 @@ import asyncio
 from collections.abc import Callable
 from datetime import datetime, timedelta
 import logging
+from pathlib import Path
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -52,7 +53,24 @@ UpdateCallback = Callable[[], None]
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the integration domain."""
     hass.data.setdefault(DOMAIN, {})
+    await _async_register_lovelace_card(hass)
     return True
+
+
+async def _async_register_lovelace_card(hass: HomeAssistant) -> None:
+    """Register the bundled Lovelace card as a static file."""
+    from homeassistant.components.http import StaticPathConfig
+
+    card_path = Path(__file__).parent / "www" / "quietcool-house-fan-card.js"
+    await hass.http.async_register_static_paths(
+        [
+            StaticPathConfig(
+                f"/{DOMAIN}/quietcool-house-fan-card.js",
+                str(card_path),
+                False,
+            )
+        ]
+    )
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

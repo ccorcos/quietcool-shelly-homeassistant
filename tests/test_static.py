@@ -60,3 +60,17 @@ def test_readme_documents_target_hardware_and_repo_url() -> None:
     assert "Shelly 1 Gen 4" in readme
     assert "PACKARD PR372 Fan Relay" in readme
     assert "## Troubleshooting" not in readme
+
+
+def test_custom_card_is_documented_and_bundled() -> None:
+    """The compact Lovelace card should be included and documented."""
+    card_path = INTEGRATION / "www" / "quietcool-house-fan-card.js"
+    card = card_path.read_text()
+    readme = (ROOT / "README.md").read_text()
+    example = (ROOT / "examples" / "dashboard" / "custom-card.yaml").read_text()
+
+    assert card_path.exists()
+    assert "customElements.define(\"quietcool-house-fan-card\"" in card
+    assert "window.customCards" in card
+    assert "/whole_house_fan_controller/quietcool-house-fan-card.js" in readme
+    assert "type: custom:quietcool-house-fan-card" in example

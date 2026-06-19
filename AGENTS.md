@@ -50,6 +50,9 @@ custom_components/whole_house_fan_controller/
   switch.py         Timed-run switch entity
   manifest.json     Home Assistant integration metadata
 
+custom_components/whole_house_fan_controller/www/
+  quietcool-house-fan-card.js
+                    Bundled compact Lovelace card
 examples/           Dashboard and YAML-package examples
 README.md           Main user documentation
 hacs.json           HACS metadata
@@ -92,6 +95,7 @@ For user-facing changes, update documentation in the same change set. In this re
 - Installation/configuration changes: update `README.md`.
 - Agent workflow or architecture changes: update `AGENTS.md`.
 - Dashboard/entity examples: update files under `examples/`.
+- Lovelace card changes: update `custom_components/whole_house_fan_controller/www/quietcool-house-fan-card.js` and the README resource/card instructions.
 
 ## Release/HACS notes
 

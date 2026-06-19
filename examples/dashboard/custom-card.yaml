@@ -1,0 +1,7 @@
+type: custom:quietcool-house-fan-card
+entity: fan.house_fan
+duration_entity: number.house_fan_run_hours
+timed_run_entity: switch.house_fan_timed_run
+remaining_entity: sensor.house_fan_timer_remaining
+finishes_at_entity: sensor.house_fan_timer_finishes_at
+name: House Fan
