@@ -2,6 +2,8 @@ class QuietCoolHouseFanCard extends HTMLElement {
   constructor() {
     super();
     this._root = this.attachShadow({ mode: "open" });
+    this._durationInputFocused = false;
+    this._renderDeferredByDurationFocus = false;
   }
 
   static getConfigElement() {
@@ -35,6 +37,15 @@ class QuietCoolHouseFanCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+
+    // Home Assistant can push frequent state updates. Replacing the card DOM while
+    // the mobile number keyboard is opening causes the input to lose focus and the
+    // keyboard to disappear, so defer redraws while the duration field is active.
+    if (this.isDurationInputFocused()) {
+      this._renderDeferredByDurationFocus = true;
+      return;
+    }
+
     this.render();
   }
 
@@ -63,7 +74,8 @@ class QuietCoolHouseFanCard extends HTMLElement {
     const fanOn = fan.state === "on";
     const timerActive = timedRun?.state === "on";
     const preset = fan.attributes?.preset_mode || "Low";
-    const durationValue = duration?.state && duration.state !== "unknown" ? Number(duration.state) : undefined;
+    const durationValue = this.numberFromState(duration?.state);
+    const durationConfig = this.durationConfig(duration);
     const finishValue = this.formatFinishTime(finishesAt?.state);
     const title = this.config.name || fan.attributes?.friendly_name || "House Fan";
 
@@ -73,7 +85,7 @@ class QuietCoolHouseFanCard extends HTMLElement {
       ? `${this.formatRemaining(remaining?.state)}${finishValue ? `, ends ${finishValue}` : ""}`
       : fanOn
         ? "∞"
-        : this.durationInput(durationValue);
+        : this.durationInput(durationValue, durationConfig);
     const actionLabel = fanOn || timerActive ? "Stop" : "Start";
     const action = fanOn || timerActive ? "stop" : "start";
 
@@ -166,13 +178,44 @@ class QuietCoolHouseFanCard extends HTMLElement {
 
     const durationInput = this._root.querySelector("input[data-duration]");
     durationInput?.addEventListener("change", () => {
-      const value = Number(durationInput.value);
-      if (Number.isFinite(value)) {
-        this._hass.callService("number", "set_value", {
-          entity_id: this.config.duration_entity,
-          value,
-        });
+      this.setDuration(durationInput.value);
+    });
+
+    durationInput?.addEventListener("focus", () => {
+      this._durationInputFocused = true;
+    });
+
+    durationInput?.addEventListener("blur", () => {
+      this._durationInputFocused = false;
+      if (this._renderDeferredByDurationFocus) {
+        this._renderDeferredByDurationFocus = false;
+        setTimeout(() => this.render(), 0);
       }
+    });
+
+    durationInput?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        durationInput.blur();
+      }
+    });
+
+    this._root.querySelectorAll("[data-duration-control]").forEach((control) => {
+      ["click", "mousedown", "pointerdown", "touchstart"].forEach((eventName) => {
+        control.addEventListener(eventName, (event) => event.stopPropagation());
+      });
+    });
+
+    this._root.querySelectorAll("button[data-duration-adjust]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const input = this._root.querySelector("input[data-duration]");
+        const current = Number(input?.value);
+        const fallback = this.numberFromState(this._hass.states[this.config.duration_entity]?.state);
+        const value = Number.isFinite(current) ? current : fallback;
+        const nextValue = this.adjustDuration(value, Number(button.dataset.durationAdjust));
+
+        if (input) input.value = this.formatDurationValue(nextValue);
+        this.setDuration(nextValue);
+      });
     });
   }
 
@@ -187,19 +230,103 @@ class QuietCoolHouseFanCard extends HTMLElement {
     this._hass.callService(domain, service, { entity_id: entityId });
   }
 
-  durationInput(value) {
+  durationInput(value, config) {
     const safeValue = Number.isFinite(value) ? value : 4;
+    const min = Number.isFinite(config.min) ? ` min="${config.min}"` : "";
+    const max = Number.isFinite(config.max) ? ` max="${config.max}"` : "";
+    const step = Number.isFinite(config.step) ? config.step : 0.5;
+    const decrementDisabled = Number.isFinite(config.min) && safeValue <= config.min;
+    const incrementDisabled = Number.isFinite(config.max) && safeValue >= config.max;
+
     return `
-      <input
-        data-duration
-        type="number"
-        min="0.1"
-        step="0.5"
-        value="${safeValue}"
-        style="background: var(--secondary-background-color); border: 1px solid var(--divider-color); border-radius: 10px; box-sizing: border-box; color: var(--primary-text-color); font: inherit; max-width: 92px; padding: 7px 9px;"
-      >
-      <span style="color: var(--secondary-text-color);">h</span>
+      <div style="align-items: center; display: flex; gap: 6px;">
+        ${this.durationAdjustButton("−", -1, decrementDisabled)}
+        <input
+          data-duration
+          data-duration-control
+          type="number"
+          inputmode="decimal"
+          ${min}${max}
+          step="${step}"
+          value="${this.formatDurationValue(safeValue)}"
+          style="background: var(--secondary-background-color); border: 1px solid var(--divider-color); border-radius: 10px; box-sizing: border-box; color: var(--primary-text-color); font: inherit; max-width: 76px; min-height: 36px; padding: 7px 8px;"
+        >
+        ${this.durationAdjustButton("+", 1, incrementDisabled)}
+        <span style="color: var(--secondary-text-color);">h</span>
+      </div>
     `;
+  }
+
+  durationAdjustButton(label, direction, disabled) {
+    return `
+      <button
+        data-duration-adjust="${direction}"
+        data-duration-control
+        type="button"
+        aria-label="${direction > 0 ? "Increase" : "Decrease"} duration"
+        ${disabled ? "disabled" : ""}
+        style="align-items: center; background: var(--secondary-background-color); border: 1px solid var(--divider-color); border-radius: 10px; color: var(--primary-text-color); cursor: ${disabled ? "not-allowed" : "pointer"}; display: inline-flex; font: inherit; font-size: 1.15rem; font-weight: 700; height: 36px; justify-content: center; opacity: ${disabled ? "0.45" : "1"}; padding: 0; width: 36px;"
+      >
+        ${label}
+      </button>
+    `;
+  }
+
+  isDurationInputFocused() {
+    return this._durationInputFocused || this._root.activeElement?.matches?.("input[data-duration]");
+  }
+
+  numberFromState(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : undefined;
+  }
+
+  durationConfig(durationEntity) {
+    const attributes = durationEntity?.attributes || {};
+    return {
+      min: this.numberOrUndefined(attributes.min),
+      max: this.numberOrUndefined(attributes.max),
+      step: this.numberOrUndefined(attributes.step) ?? 0.5,
+    };
+  }
+
+  numberOrUndefined(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : undefined;
+  }
+
+  adjustDuration(value, direction) {
+    const config = this.durationConfig(this._hass.states[this.config.duration_entity]);
+    const base = Number.isFinite(value) ? value : 4;
+    const step = Number.isFinite(config.step) ? config.step : 0.5;
+    return this.clampDuration(this.roundDuration(base + direction * step), config);
+  }
+
+  setDuration(value) {
+    const config = this.durationConfig(this._hass.states[this.config.duration_entity]);
+    const duration = this.clampDuration(Number(value), config);
+
+    if (Number.isFinite(duration)) {
+      this._hass.callService("number", "set_value", {
+        entity_id: this.config.duration_entity,
+        value: duration,
+      });
+    }
+  }
+
+  clampDuration(value, config) {
+    if (!Number.isFinite(value)) return value;
+    if (Number.isFinite(config.min) && value < config.min) return config.min;
+    if (Number.isFinite(config.max) && value > config.max) return config.max;
+    return value;
+  }
+
+  roundDuration(value) {
+    return Math.round(value * 1000) / 1000;
+  }
+
+  formatDurationValue(value) {
+    return Number.isFinite(value) ? String(this.roundDuration(value)) : "";
   }
 
   formatRemaining(value) {
